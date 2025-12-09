@@ -49,9 +49,6 @@ int main() {
     
     file.close();
 
-    cout << "Jumlah data: " << data << endl;
-    cout << "Jumlah data setelah cleaning: " << cleanedData.size() << endl;
-
     // DATA TRANSFORMATION
     vector<vector<double>> transformedData;
     vector<int> label;
@@ -75,21 +72,12 @@ int main() {
     vector<vector<double>> dataTest(transformedData.begin() + trainSize, transformedData.end());
     vector<double> labelTrain(label.begin(), label.begin() + trainSize);
     vector<double> labelTest(label.begin() + trainSize, label.end());
-
-    cout << "Jumlah data training: " << dataTrain.size() << endl;
-    cout << "Jumlah data testing: " << dataTest.size() << endl;
-
+    
     double dataCKD = count(labelTrain.begin(), labelTrain.end(), 1);
     double dataNOTCKD = count(labelTrain.begin(), labelTrain.end(), 0);
-    cout << endl << "DATA TRAIN" << endl;
-    cout << "Data CKD: " << dataCKD << endl;
-    cout << "Data NOTCKD: " << dataNOTCKD << endl;
-
+    
     double priorCKD = dataCKD / dataTrain.size();
     double priorNOTCKD = dataNOTCKD / dataTrain.size();
-    cout << endl << "PRIOR KELAS" << endl;
-    cout << "Prior CKD: " << priorCKD << endl;
-    cout << "Prior NOTCKD: " << priorNOTCKD << endl;
 
     vector<double> arrYesCKD(fitur.size()), arrNoCKD(fitur.size()), arrYesNOTCKD(fitur.size()), arrNoNOTCKD(fitur.size());
     vector<double> arrMeanCKD(fitur.size()), arrVarCKD(fitur.size()), arrMeanNOTCKD(fitur.size()), arrVarNOTCKD(fitur.size());
@@ -200,6 +188,13 @@ int main() {
         }
 
         if (menu == 1) {
+            cout << endl << "DATA TRAINING\t: " << dataTrain.size() << endl;
+            cout << "Data CKD\t: " << dataCKD << endl;
+            cout << "Data NOTCKD\t: " << dataNOTCKD << endl;
+            cout << endl << "PRIOR KELAS" << endl;
+            cout << "Prior CKD\t: " << priorCKD << endl;
+            cout << "Prior NOTCKD\t: " << priorNOTCKD << endl;
+
             cout << endl << "PROBABILITAS TIAP FITUR" << endl;
             for (int i = 0; i < fitur.size(); i++) {
                 string h = fitur[i];
@@ -282,8 +277,9 @@ int main() {
                 else if (labelTest[i] == 0 && labelPredict[i] == 1) falsePositive++;
                 else if (labelTest[i] == 0 && labelPredict[i] == 0) trueNegative++;
             }
+            cout << endl << "DATA TESTING\t: " << dataTest.size() << endl;
         
-            cout << endl << "CONFUSION MATRIX" << endl;
+            cout << "CONFUSION MATRIX" << endl;
             cout << left << defaultfloat;
             cout << setw(15) << "" << setw(12) << "Pred Ya" << "Pred Tidak" << endl;
             cout << setw(15) << "Aktual Ya" << setw(12) << truePositive << falseNegative <<endl;
