@@ -64,20 +64,43 @@ int main() {
         label.push_back(toNumeric(cleanedData[i][fitur.size() - 1]));
     }
 
-    // SPLIT DATA
-    int n = transformedData.size();
-    int trainSize = n * 0.8;
+    vector<vector<double>> dataCKD, dataNOTCKD;
+    vector<int> labelCKD, labelNOTCKD;
 
-    vector<vector<double>> dataTrain(transformedData.begin(), transformedData.begin() + trainSize);
-    vector<vector<double>> dataTest(transformedData.begin() + trainSize, transformedData.end());
-    vector<double> labelTrain(label.begin(), label.begin() + trainSize);
-    vector<double> labelTest(label.begin() + trainSize, label.end());
+    for (int i = 0; i < transformedData.size(); i++) {
+        if (label[i] == 1) {
+            dataCKD.push_back(transformedData[i]);
+            labelCKD.push_back(label[i]);
+        }
+        else {
+            dataNOTCKD.push_back(transformedData[i]);
+            labelNOTCKD.push_back(label[i]);
+        }
+    }
+
+    int trainCKD = dataCKD.size() * 0.8;
+    int trainNOTCKD = dataNOTCKD.size() * 0.8;
+
+    vector<vector<double>> dataTrain, dataTest;
+    vector<int> labelTrain, labelTest;
+
+    dataTrain.insert(dataTrain.end(), dataCKD.begin(), dataCKD.begin() + trainCKD);
+    labelTrain.insert(labelTrain.end(), labelCKD.begin(), labelCKD.begin() + trainCKD);
+
+    dataTest.insert(dataTest.end(), dataCKD.begin() + trainCKD, dataCKD.end());
+    labelTest.insert(labelTest.end(), labelCKD.begin() + trainCKD, labelCKD.end());
+
+    dataTrain.insert(dataTrain.end(), dataNOTCKD.begin(), dataNOTCKD.begin() + trainNOTCKD);
+    labelTrain.insert(labelTrain.end(), labelNOTCKD.begin(), labelNOTCKD.begin() + trainNOTCKD);
+
+    dataTest.insert(dataTest.end(), dataNOTCKD.begin() + trainNOTCKD, dataNOTCKD.end());
+    labelTest.insert(labelTest.end(), labelNOTCKD.begin() + trainNOTCKD, labelNOTCKD.end());
     
-    double dataCKD = count(labelTrain.begin(), labelTrain.end(), 1);
-    double dataNOTCKD = count(labelTrain.begin(), labelTrain.end(), 0);
+    double dataTrainCKD = count(labelTrain.begin(), labelTrain.end(), 1);
+    double dataTrainNOTCKD = count(labelTrain.begin(), labelTrain.end(), 0);
     
-    double priorCKD = dataCKD / dataTrain.size();
-    double priorNOTCKD = dataNOTCKD / dataTrain.size();
+    double priorCKD = dataTrainCKD / dataTrain.size();
+    double priorNOTCKD = dataTrainNOTCKD / dataTrain.size();
 
     vector<double> arrYesCKD(fitur.size()), arrNoCKD(fitur.size()), arrYesNOTCKD(fitur.size()), arrNoNOTCKD(fitur.size());
     vector<double> arrMeanCKD(fitur.size()), arrVarCKD(fitur.size()), arrMeanNOTCKD(fitur.size()), arrVarNOTCKD(fitur.size());
@@ -97,10 +120,10 @@ int main() {
                 else if (dataTrain[j][i] == 0 && labelTrain[j] == 0) noNOTCKD++;
             }
 
-            double PyesCKD = (yesCKD + 1) / (dataCKD + 2);
-            double PnoCKD = (noCKD + 1) / (dataCKD + 2);
-            double PyesNOTCKD = (yesNOTCKD + 1) / (dataNOTCKD + 2);
-            double PnoNOTCKD = (noNOTCKD + 1) / (dataNOTCKD + 2);
+            double PyesCKD = (yesCKD + 1) / (dataTrainCKD + 2);
+            double PnoCKD = (noCKD + 1) / (dataTrainCKD + 2);
+            double PyesNOTCKD = (yesNOTCKD + 1) / (dataTrainNOTCKD + 2);
+            double PnoNOTCKD = (noNOTCKD + 1) / (dataTrainNOTCKD + 2);
 
             arrYesCKD[i] = PyesCKD;
             arrNoCKD[i] = PnoCKD;
@@ -117,16 +140,16 @@ int main() {
                 else sumNOTCKD += dataTrain[j][i];
             }
             
-            meanCKD = sumCKD / dataCKD;
-            meanNOTCKD = sumNOTCKD / dataNOTCKD;
+            meanCKD = sumCKD / dataTrainCKD;
+            meanNOTCKD = sumNOTCKD / dataTrainNOTCKD;
             
             for (int j = 0; j < dataTrain.size(); j++) {
                 if (labelTrain[j] == 1) varCKD += pow(dataTrain[j][i] - meanCKD, 2);
                 else varNOTCKD += pow(dataTrain[j][i] - meanNOTCKD, 2);
             }
 
-            varCKD /= dataCKD;
-            varNOTCKD /= dataNOTCKD;
+            varCKD /= dataTrainCKD;
+            varNOTCKD /= dataTrainNOTCKD;
 
             arrMeanCKD[i] = meanCKD;
             arrVarCKD[i] = varCKD;
@@ -189,8 +212,8 @@ int main() {
 
         if (menu == 1) {
             cout << endl << "DATA TRAINING\t: " << dataTrain.size() << endl;
-            cout << "Data CKD\t: " << dataCKD << endl;
-            cout << "Data NOTCKD\t: " << dataNOTCKD << endl;
+            cout << "Data CKD\t: " << dataTrainCKD << endl;
+            cout << "Data NOTCKD\t: " << dataTrainNOTCKD << endl;
             cout << endl << "PRIOR KELAS" << endl;
             cout << "Prior CKD\t: " << priorCKD << endl;
             cout << "Prior NOTCKD\t: " << priorNOTCKD << endl;
